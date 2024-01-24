@@ -32,6 +32,7 @@ public class Main {
         // Print the ordered results
         for (String result : results) {
             System.out.println(result);
+            System.out.println();
         }
 
 
