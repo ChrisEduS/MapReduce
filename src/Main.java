@@ -10,7 +10,6 @@ public class Main {
         TxtReader txtReader = new TxtReader();
         txtReader.splitFile(rutaTextoAgrandado, rutaGuardadoChunks, numeroChunks);
 
-        ArrayList<String>palabras = txtReader.leerArchivo("resources/Chunks/_chunk1.txt");
 
 
 
