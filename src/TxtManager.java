@@ -2,6 +2,11 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class TxtManager {
+
+    public static int numberOfChunks = 0;
+
+
+
     // Método para leer el archivo de texto
     public ArrayList<String> leerArchivo(String rutaArchivo) {
         try {
@@ -49,6 +54,8 @@ public class TxtManager {
                 chunkNumber++;
                 buffer = new byte[chunkSize];
             }
+            numberOfChunks = chunkNumber;
+
         } catch (IOException e) {
             e.printStackTrace();
         }
