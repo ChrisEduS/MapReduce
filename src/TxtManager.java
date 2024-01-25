@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
 
-public class TxtReader {
+public class TxtManager {
     // Método para leer el archivo de texto
     public ArrayList<String> leerArchivo(String rutaArchivo) {
         try {
