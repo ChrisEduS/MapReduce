@@ -1,5 +1,7 @@
+import static java.lang.Thread.sleep;
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         //Dividir el archivo en chunks de 32mb
         String rutaTextoAgrandado = "resources/Texto_Original/Texto_Agrandado/texto_agrandado.txt";
@@ -8,12 +10,9 @@ public class Main {
         TxtManager txtManager = new TxtManager();
         txtManager.splitFile(rutaTextoAgrandado, rutaGuardadoChunks, numeroChunks);
 
-
-
-
-
-
-
+        //Init Controller
+        Controller controller = new Controller();
+        controller.run();
 
 
 
