@@ -9,6 +9,7 @@ public class Main {
         TxtManager txtManager = new TxtManager();
         txtManager.splitFile(rutaTextoAgrandado, numeroChunks);
         txtManager.empty_file(txtManager.getMapper_output_path()+"mapped_chunk_names.txt");
+        txtManager.empty_file(txtManager.getMapper_output_path()+"reduced_chunk_names.txt");
 
 
 
