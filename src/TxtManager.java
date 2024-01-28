@@ -99,6 +99,15 @@ public class TxtManager {
 
     }
 
+    public void empty_file(String file_path){
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(file_path));
+            bw.write("");
+            bw.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
 
 
