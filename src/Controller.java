@@ -30,14 +30,12 @@ public class Controller implements Runnable{
     void init_mappers(){
         //init four mappers
         for (int i = 0; i < 4; i++) {
-            Mapper mapper = new Mapper(this.available_chunks.remove(), false);
+            Mapper mapper = new Mapper(i+1,this.available_chunks.remove(), false);
             this.mappers.add(mapper);
             Thread mapperThread = new Thread(mapper);
             mapperThread.start();
             System.out.println("Mapper "+i+" started");
         }
-
-
     }
 
     void verify_state_mappers(){

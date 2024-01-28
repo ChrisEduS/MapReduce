@@ -4,6 +4,7 @@ import java.io.*;
 import static java.lang.Thread.sleep;
 
 public class Mapper implements Runnable {
+    int id;
     TxtManager txtManager = new TxtManager();
     String chunk_name;
     String chunk_path;
@@ -11,7 +12,8 @@ public class Mapper implements Runnable {
     boolean is_working = true;
     String mapper_output_path = txtManager.getMapper_output_path();
 
-    public Mapper(String chunk_name, boolean it_fails){
+    public Mapper(int id,String chunk_name, boolean it_fails){
+        this.id = id;
         this.chunk_name = chunk_name;
         this.it_fails = it_fails;
         this.chunk_path = txtManager.getChunks_path() + chunk_name;
@@ -28,7 +30,7 @@ public class Mapper implements Runnable {
                 ArrayList<String> words_mapped = mapping(chunk_path);
                 this.save_mapped_words_to_file(words_mapped, this.mapper_output_path+"mapped_"+chunk_name);
                 this.is_working = false;
-                System.out.println("Mapper Chunk "+chunk_name+" finished");
+                System.out.println("Mapper "+ id +" "+chunk_name+" finished");
             }
             
         }
