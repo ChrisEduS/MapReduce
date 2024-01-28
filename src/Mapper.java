@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.io.*;
 
-import static java.lang.Thread.sleep;
-
 public class Mapper implements Runnable {
     int id;
     TxtManager txtManager = new TxtManager();
@@ -12,29 +10,26 @@ public class Mapper implements Runnable {
     boolean is_working = true;
     String mapper_output_path = txtManager.getMapper_output_path();
 
-    public Mapper(int id,String chunk_name, boolean it_fails){
+    public Mapper(int id, String chunk_name, boolean it_fails) {
         this.id = id;
         this.chunk_name = chunk_name;
         this.it_fails = it_fails;
         this.chunk_path = txtManager.getChunks_path() + chunk_name;
     }
 
-
     @Override
     public void run() {
-        while (true){
-            if (it_fails || !this.is_working){
+        while (true) {
+            if (it_fails || !this.is_working) {
                 break;
-            }
-            else {
+            } else {
                 ArrayList<String> words_mapped = mapping(chunk_path);
-                this.save_mapped_words_to_file(words_mapped, this.mapper_output_path+"mapped_"+chunk_name);
+                this.save_mapped_words_to_file(words_mapped, this.mapper_output_path + "mapped_" + chunk_name);
                 this.is_working = false;
-                System.out.println("Mapper "+ id +" "+chunk_name+" finished");
+                System.out.println("Mapper " + id + " " + chunk_name + " finished");
             }
 
         }
-
 
     }
 
@@ -51,10 +46,10 @@ public class Mapper implements Runnable {
                 if (single_line.equals("")) {
                     continue;
                 }
-                //split the line into words and save to an ArrayList
+                // split the line into words and save to an ArrayList
                 String[] lineWords = single_line.split(" ");
                 for (String word : lineWords) {
-                    words.add(word+" 1");
+                    words.add(word + " 1");
                 }
             }
             br.close();
@@ -70,12 +65,14 @@ public class Mapper implements Runnable {
     public void save_mapped_words_to_file(ArrayList<String> words, String output_file_path) {
         try {
             BufferedWriter bw_words = new BufferedWriter(new FileWriter(output_file_path));
-            BufferedWriter bw_mapped_chunk_names = new BufferedWriter(new FileWriter(txtManager.getMapper_output_path()+"mapped_chunk_names.txt",true));
+            BufferedWriter bw_mapped_chunk_names = new BufferedWriter(
+                    new FileWriter(txtManager.getMapper_output_path() + "mapped_chunk_names.txt", true));
             for (String word : words) {
                 bw_words.write(word);
                 bw_words.newLine();
             }
-            bw_mapped_chunk_names.write("mapped_"+chunk_name); //this is the name of the mapped chunk, for example "mapped_chunk_1.txt
+            bw_mapped_chunk_names.write("mapped_" + chunk_name); // this is the name of the mapped chunk, for example
+                                                                 // "mapped_chunk_1.txt
             bw_mapped_chunk_names.newLine();
             bw_mapped_chunk_names.close();
             bw_words.close();
@@ -84,15 +81,15 @@ public class Mapper implements Runnable {
         }
     }
 
-    public void restart_mapper(){
+    public void restart_mapper() {
         this.it_fails = false;
     }
 
-    public boolean get_status(){
+    public boolean get_status() {
         return this.is_working;
     }
 
-    public void assign_chunk(String chunk_name){
+    public void assign_chunk(String chunk_name) {
         this.chunk_name = chunk_name;
         this.chunk_path = txtManager.getChunks_path() + chunk_name;
         this.is_working = true;
