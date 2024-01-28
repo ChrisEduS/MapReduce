@@ -15,24 +15,12 @@ public class Reducer implements Runnable {
 
     private static Map<String, Integer> wordCounts = new ConcurrentHashMap<>();
 
-    public Reducer(int id, String chunkName) {
+    public Reducer(int id) {
         this.id = id;
-        this.chunkName = chunkName;
-        this.mapperOutputPath = txtManager.getMapper_output_path() + chunkName;
-        System.out.println("Reducer " + id + " " + chunkName + " started");
     }
 
     @Override
     public void run() {
-        while (is_working) {
-            try {
-                reduce();
-                is_working = false; // Set is_working to false after the reduce operation is complete
-            } catch (IOException e) {
-                e.printStackTrace();
-                it_fails = true; // Set it_fails to true if an exception occurs
-            }
-        }
     }
 
     private void reduce() throws IOException {

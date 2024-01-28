@@ -1,7 +1,11 @@
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.io.*;
+import java.util.Queue;
 
 public class Mapper implements Runnable {
+
+    public static Queue<String> reducer_chunks = new ArrayDeque<String>();
     int id;
     TxtManager txtManager = new TxtManager();
     String chunk_name;
@@ -71,8 +75,9 @@ public class Mapper implements Runnable {
                 bw_words.write(word);
                 bw_words.newLine();
             }
-            bw_mapped_chunk_names.write("mapped_" + chunk_name); // this is the name of the mapped chunk, for example
-                                                                 // "mapped_chunk_1.txt
+            String mapped_name = "mapped_" + chunk_name;
+            bw_mapped_chunk_names.write(mapped_name); // this is the name of the mapped chunk, for example
+            reducer_chunks.add(mapped_name);
             bw_mapped_chunk_names.newLine();
             bw_mapped_chunk_names.close();
             bw_words.close();
