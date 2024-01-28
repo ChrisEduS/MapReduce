@@ -5,7 +5,7 @@ public class Main {
 
         //Dividir el archivo en chunks de 32mb
         String rutaTextoAgrandado = "texto_agrandado.txt";
-        int numeroChunks = 32 *1000 * 1000;
+        int numeroChunks = 16 *1024 * 1024;
         TxtManager txtManager = new TxtManager();
         txtManager.splitFile(rutaTextoAgrandado, numeroChunks);
         txtManager.empty_file(txtManager.getMapper_output_path()+"mapped_chunk_names.txt");

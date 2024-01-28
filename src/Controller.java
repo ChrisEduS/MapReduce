@@ -6,7 +6,7 @@ import java.util.Queue;
 public class Controller implements Runnable {
     public TxtManager txtManager = new TxtManager();
     public Queue<String> available_chunks;
-    public Queue<String> available_mapped_chunks = new LinkedList<>();;
+    public Queue<String> available_mapped_chunks = new LinkedList<String>();
     public ArrayList<Mapper> mappers = new ArrayList<Mapper>();
 
     public ArrayList<Thread> mappers_threads = new ArrayList<Thread>();
@@ -35,6 +35,9 @@ public class Controller implements Runnable {
             if (map_finsh && all_mappers_finished() && available_mapped_chunks.isEmpty()) {
                 System.out.println("Map finished");
                 init_reducers();
+                if (!available_mapped_chunks.isEmpty()) {
+                    verify_state_reducers();
+                }
                 if (all_reducers_finished()) {
                     System.out.println("Reduce finished");
                     reduce_finish = true;
@@ -65,6 +68,15 @@ public class Controller implements Runnable {
                 // if the mapper is not working, we need to assign another chunk
                 mapper.is_working = true;
                 mapper.assign_chunk(this.available_chunks.remove());
+            }
+        }
+    }
+
+    void verify_state_reducers(){
+        for (Reducer reducer : this.reducers) {
+            if (!reducer.is_working) {
+                // if the reducer is not working, we need to assign another chunk
+                reducer.assign_chunk(this.available_mapped_chunks.remove());
             }
         }
     }

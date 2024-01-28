@@ -6,7 +6,7 @@ public class Reducer implements Runnable {
 
     private int id;
     private TxtManager txtManager = new TxtManager();
-    private String chunkName;
+    private String chunk_name;
     private String reducerOutputPath = txtManager.getReducer_output_path();
     private String mapperOutputPath;
 
@@ -17,20 +17,24 @@ public class Reducer implements Runnable {
 
     public Reducer(int id, String chunkName) {
         this.id = id;
-        this.chunkName = chunkName;
+        this.chunk_name = chunkName;
         this.mapperOutputPath = txtManager.getMapper_output_path() + chunkName;
         System.out.println("Reducer " + id + " " + chunkName + " started");
     }
 
     @Override
     public void run() {
-        while (is_working) {
-            try {
-                reduce();
-                is_working = false; // Set is_working to false after the reduce operation is complete
-            } catch (IOException e) {
-                e.printStackTrace();
-                it_fails = true; // Set it_fails to true if an exception occurs
+        while (true) {
+            if (it_fails || !this.is_working) {
+                break;
+            } else {
+                try {
+                    reduce();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                this.is_working = false;
+                System.out.println("Reducer " + id + " " + chunk_name + " finished");
             }
         }
     }
@@ -43,7 +47,7 @@ public class Reducer implements Runnable {
         } else if (!file.canRead()) {
             System.out.println("File " + this.mapperOutputPath + " cannot be read");
         } else {
-            System.out.println("Reducer " + id + " " + chunkName + " started");
+            System.out.println("Reducer " + id + " " + chunk_name + " started");
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(mapperOutputPath))) {
             String line;
@@ -58,7 +62,7 @@ public class Reducer implements Runnable {
         }
 
         // Save the reduced chunk to a file
-        save_reduced_mapped_chunks_file(wordCounts, reducerOutputPath + "reduced_" + chunkName);
+        save_reduced_mapped_chunks_file(wordCounts, reducerOutputPath + "reduced_" + chunk_name);
 
     }
 
@@ -71,7 +75,7 @@ public class Reducer implements Runnable {
                 bw_words.write(entry.getKey() + " " + entry.getValue());
                 bw_words.newLine();
             }
-            bw_reduced_chunk_names.write("reduced_" + chunkName); // this is the name of the reduced chunk, for example
+            bw_reduced_chunk_names.write("reduced_" + chunk_name); // this is the name of the reduced chunk, for example
                                                                   // "reduced_chunk_1.txt
             bw_reduced_chunk_names.newLine();
             bw_reduced_chunk_names.close();
@@ -88,4 +92,11 @@ public class Reducer implements Runnable {
     public boolean hasFailed() {
         return it_fails;
     }
+
+    public void assign_chunk(String chunk_name) {
+        this.chunk_name = chunk_name;
+        this.mapperOutputPath = txtManager.getChunks_path() + chunk_name;
+        this.is_working = true;
+    }
+
 }
