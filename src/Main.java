@@ -8,6 +8,7 @@ public class Main {
         int numeroChunks = 32 *1000 * 1000;
         TxtManager txtManager = new TxtManager();
         txtManager.splitFile(rutaTextoAgrandado, numeroChunks);
+        txtManager.empty_file(txtManager.getMapper_output_path()+"mapped_chunk_names.txt");
 
 
 
