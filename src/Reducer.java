@@ -15,9 +15,11 @@ public class Reducer implements Runnable {
 
     private static Map<String, Integer> wordCounts = new ConcurrentHashMap<>();
 
-    public Reducer(String mapperOutputPath) {
-        this.mapperOutputPath = mapperOutputPath;
-        this.reducerOutputPath = txtManager.getReducer_output_path();
+    public Reducer(int id,String chunkName) {
+        this.id = id;
+        this.chunkName = chunkName;
+        this.reducerOutputPath = txtManager.getMapper_output_path() + "mapped_"+chunkName;
+        System.out.println("Reducer "+ id +" "+chunkName+" started");
     }
 
     @Override

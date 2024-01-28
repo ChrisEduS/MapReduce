@@ -32,9 +32,9 @@ public class Mapper implements Runnable {
                 this.is_working = false;
                 System.out.println("Mapper "+ id +" "+chunk_name+" finished");
             }
-            
+
         }
-        
+
 
     }
 
@@ -64,18 +64,18 @@ public class Mapper implements Runnable {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-           return null;
+        return null;
     }
 
     public void save_mapped_words_to_file(ArrayList<String> words, String output_file_path) {
         try {
             BufferedWriter bw_words = new BufferedWriter(new FileWriter(output_file_path));
-            BufferedWriter bw_mapped_chunk_names = new BufferedWriter(new FileWriter(txtManager.getChunks_name_path()+"mapped_chunk_names.txt"));
+            BufferedWriter bw_mapped_chunk_names = new BufferedWriter(new FileWriter(txtManager.getMapper_output_path()+"mapped_chunk_names.txt",true));
             for (String word : words) {
                 bw_words.write(word);
                 bw_words.newLine();
             }
-            bw_mapped_chunk_names.write(chunk_name);
+            bw_mapped_chunk_names.write("mapped_"+chunk_name); //this is the name of the mapped chunk, for example "mapped_chunk_1.txt
             bw_mapped_chunk_names.newLine();
             bw_mapped_chunk_names.close();
             bw_words.close();
@@ -83,7 +83,7 @@ public class Mapper implements Runnable {
             System.out.println(e.getMessage());
         }
     }
-    
+
     public void restart_mapper(){
         this.it_fails = false;
     }

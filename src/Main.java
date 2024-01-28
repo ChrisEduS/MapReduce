@@ -12,11 +12,10 @@ public class Main {
 
 
         //Init Controller
-/*        Controller controller = new Controller();
+        Controller controller = new Controller();
         Thread controllerThread = new Thread(controller);
-        controllerThread.start();*/
+        controllerThread.start();
 
-        System.out.println(txtManager.get_mapper_name());
 
 
 
