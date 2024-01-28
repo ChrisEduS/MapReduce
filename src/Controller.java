@@ -9,6 +9,7 @@ public class Controller implements Runnable {
     public Queue<String> available_mapped_chunks = new LinkedList<>();;
     public ArrayList<Mapper> mappers = new ArrayList<Mapper>();
 
+    public ArrayList<Thread> mappers_threads = new ArrayList<Thread>();
     public Boolean map_finsh = false;
 
     public Controller() {
@@ -43,6 +44,7 @@ public class Controller implements Runnable {
             Mapper mapper = new Mapper(i, this.available_chunks.remove(), false);
             this.mappers.add(mapper);
             Thread mapperThread = new Thread(mapper);
+            this.mappers_threads.add(mapperThread);
             mapperThread.start();
             System.out.println("Mapper " + i + " started");
         }
@@ -59,12 +61,12 @@ public class Controller implements Runnable {
     }
 
     boolean all_mappers_finished() {
-        for (Mapper mapper : this.mappers) {
-            if (mapper.is_working) {
-                return false; // Return false as soon as we find a mapper that is still working
+        for (Thread mapperThread : this.mappers_threads) {
+            if (mapperThread.isAlive()) {
+                return false;
             }
         }
-        return true; // Only return true if we've checked all mappers and none of them are working
+        return true;
     }
 
     void init_reducers() {
