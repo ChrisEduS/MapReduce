@@ -3,9 +3,16 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Reducer implements Runnable {
+
+    private int id;
     private TxtManager txtManager = new TxtManager();
-    private String mapperOutputPath;
+    private String chunkName;
+    private String mapperOutputPath = txtManager.getReducer_output_path();
     private String reducerOutputPath;
+
+    boolean it_fails = false;
+    boolean is_working = true;
+
     private static Map<String, Integer> wordCounts = new ConcurrentHashMap<>();
 
     public Reducer(String mapperOutputPath) {

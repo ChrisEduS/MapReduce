@@ -10,7 +10,7 @@ public class TxtManager {
     private String big_file_path = "resources/Texto_Original/Texto_Agrandado/";
     private String chunks_path = "resources/Chunks/";
     private String chunks_name_path = "resources/Chunks/chunks_name.txt";
-    private String mapper_output_path = "resources/Mappers_Output/";
+    private String mapper_output_path = "resources/Mappers_Output/mappers_name.txt";
     private String reducer_output_path = "resources/Reducers_Output/";
     private String final_output_path = "resources/Final_Output/";
 
@@ -76,6 +76,29 @@ public class TxtManager {
 
     }
 
+
+    public Queue<String> get_mapper_name(){
+        Queue<String> mapper_name = new ArrayDeque<String>();
+        try {
+            File file = new File(mapper_output_path);
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            String single_line;
+
+            while ((single_line = br.readLine()) != null) {
+                mapper_name.add(single_line);
+            }
+            br.close();
+            fr.close();
+            return mapper_name;
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+
+    }
 
 
     public String getBig_file_path() {

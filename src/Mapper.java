@@ -59,6 +59,12 @@ public class Mapper implements Runnable {
             }
             br.close();
             fr.close();
+
+
+
+
+
+
             return words;
 
         } catch (IOException e) {
@@ -75,12 +81,17 @@ public class Mapper implements Runnable {
                 bw.write(word);
                 bw.newLine();
             }
+
+
+
+
             bw.close();
             fw.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
+
     
     public void restart_mapper(){
         this.it_fails = false;
