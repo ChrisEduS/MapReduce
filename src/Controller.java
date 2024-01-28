@@ -16,7 +16,6 @@ public class Controller implements Runnable {
     public ArrayList<Thread> combiners_threads = new ArrayList<Thread>();
     public Boolean combine_finish = false;
 
-    private Shuffle shuffle;
     public Controller() {
         this.available_chunks = txtManager.get_chunks_name();
     }
@@ -48,6 +47,16 @@ public class Controller implements Runnable {
                         break; // Exit the loop once all combiners have finished
                     }
                 }
+
+                ArrayList<String> combiner_name = txtManager.get_combiner_name();
+                //to each name add the path
+                String path  = "resources/Combiners_Output/";
+                for (int i = 0; i < combiner_name.size(); i++) {
+                    combiner_name.set(i, path + combiner_name.get(i));
+                }
+                Reducer_Finisher reducerFinisher = new Reducer_Finisher(combiner_name, "resources/Final_Output/word_count.txt");
+                Thread reducerFinisherThread = new Thread(reducerFinisher);
+                reducerFinisherThread.start();
                 break;
             }
         }
