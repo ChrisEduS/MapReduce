@@ -56,7 +56,7 @@ public class Controller implements Runnable {
 
     void init_mappers() {
         // init four mappers
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 8; i++) {
             Mapper mapper = new Mapper(i, this.available_chunks.remove(), false);
             this.mappers.add(mapper);
             Thread mapperThread = new Thread(mapper);
