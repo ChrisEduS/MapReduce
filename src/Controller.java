@@ -4,16 +4,19 @@ import java.util.Queue;
 
 public class Controller implements Runnable {
     public TxtManager txtManager = new TxtManager();
+
     public Queue<String> available_chunks;
     public Queue<String> available_mapped_chunks = new LinkedList<String>();
-    public ArrayList<Mapper> mappers = new ArrayList<Mapper>();
 
+    public ArrayList<Mapper> mappers = new ArrayList<Mapper>();
     public ArrayList<Thread> mappers_threads = new ArrayList<Thread>();
     public Boolean map_finsh = false;
+
     public ArrayList<Combiner> combiners = new ArrayList<Combiner>();
     public ArrayList<Thread> combiners_threads = new ArrayList<Thread>();
     public Boolean combine_finish = false;
 
+    private Shuffle shuffle;
     public Controller() {
         this.available_chunks = txtManager.get_chunks_name();
     }
@@ -46,16 +49,14 @@ public class Controller implements Runnable {
                     }
                 }
                 break;
-                // Exit the loop once the combiners have started
             }
-
         }
 
     }
 
     void init_mappers() {
         // init four mappers
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 16; i++) {
             Mapper mapper = new Mapper(i, this.available_chunks.remove(), false);
             this.mappers.add(mapper);
             Thread mapperThread = new Thread(mapper);
@@ -97,7 +98,7 @@ public class Controller implements Runnable {
     void init_combiners() {
         available_mapped_chunks = txtManager.get_mapper_name();
         
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             Combiner combiner = new Combiner(i, this.available_mapped_chunks.remove());
             this.combiners.add(combiner);
             Thread combinerThread = new Thread(combiner);

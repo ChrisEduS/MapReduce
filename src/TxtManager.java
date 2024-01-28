@@ -96,7 +96,28 @@ public class TxtManager {
             System.out.println(e.getMessage());
         }
         return null;
+    }
 
+    public ArrayList<String> get_combiner_name(){
+        ArrayList<String> combiner_name = new ArrayList<String>();
+        try {
+            File file = new File(combiner_output_path+"combined_chunk_names.txt");
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            String single_line;
+
+            while ((single_line = br.readLine()) != null) {
+                combiner_name.add(single_line);
+            }
+            br.close();
+            fr.close();
+            return combiner_name;
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     public void empty_file(String file_path){

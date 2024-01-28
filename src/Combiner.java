@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class Combiner implements Runnable {
 
@@ -56,6 +57,10 @@ public class Combiner implements Runnable {
             BufferedWriter bw_words = new BufferedWriter(new FileWriter(output_file_path));
             BufferedWriter bw_combined_chunk_names = new BufferedWriter(
                     new FileWriter(combinerOutputPath + "combined_chunk_names.txt", true));
+            //Sort in alphabetical order
+            wordCounts = wordCounts.entrySet().stream().sorted(Map.Entry.comparingByKey())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue,
+                            LinkedHashMap::new));
             for (Map.Entry<String, Integer> entry : wordCounts.entrySet()) {
                 bw_words.write(entry.getKey() + " " + entry.getValue());
                 bw_words.newLine();
