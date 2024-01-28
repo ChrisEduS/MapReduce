@@ -1,5 +1,7 @@
 import java.io.*;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 
 public class TxtManager {
 
@@ -16,33 +18,65 @@ public class TxtManager {
     }
 
     // split a document into 32mb chunks
-    public void split_file(String inputFile, int chunkSize) {
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(big_file_path+inputFile))) {
+    public void splitFile(String inputFile, int chunkSize) {
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(big_file_path + inputFile))) {
             byte[] buffer = new byte[chunkSize];
             int bytesRead;
             int chunkNumber = 1;
 
-            while ((bytesRead = bis.read(buffer, 0, chunkSize)) > 0) {
+            // Create the BufferedWriter outside the loop
+            String chunksNamePath = chunks_path + "chunks_name.txt";
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(chunksNamePath))) {
 
-                String chunk_name = "chunk" + chunkNumber + ".txt";
-                String outputFilePath = chunks_path + chunk_name;
-                String chunksNamePath = chunks_path + "chunks_name.txt";
+                while ((bytesRead = bis.read(buffer, 0, chunkSize)) > 0) {
+                    String chunkName = "chunk" + chunkNumber + ".txt";
+                    String outputFilePath = chunks_path + chunkName;
 
-                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFilePath));
-                     BufferedWriter bw = new BufferedWriter(new FileWriter(chunksNamePath))) {
-                    bos.write(buffer, 0, bytesRead);
-                    bw.write(chunk_name);
-                    bw.newLine();
+                    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFilePath))) {
+                        bos.write(buffer, 0, bytesRead);
+
+                        // Write the chunk name to the chunks_name.txt file
+                        bw.write(chunkName);
+                        bw.newLine();
+                    }
+
+                    chunkNumber++;
+                    buffer = new byte[chunkSize];
                 }
-                chunkNumber++;
-                buffer = new byte[chunkSize];
             }
+
             numberOfChunks = chunkNumber;
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
+    public Queue<String> get_chunks_name(){
+        Queue<String> chunks_name = new ArrayDeque<String>();
+        try {
+            File file = new File(chunks_name_path);
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            String single_line;
+
+            while ((single_line = br.readLine()) != null) {
+                chunks_name.add(single_line);
+            }
+            br.close();
+            fr.close();
+            return chunks_name;
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+
+    }
+
+
 
     public String getBig_file_path() {
         return big_file_path;

@@ -28,6 +28,7 @@ public class Mapper implements Runnable {
                 ArrayList<String> words_mapped = mapping(chunk_path);
                 this.save_mapped_words_to_file(words_mapped, this.mapper_output_path+"mapped_"+chunk_name);
                 this.is_working = false;
+                System.out.println("Mapper Chunk "+chunk_name+" finished");
             }
             
         }
@@ -45,6 +46,9 @@ public class Mapper implements Runnable {
             ArrayList<String> words = new ArrayList<String>();
 
             while ((single_line = br.readLine()) != null) {
+                if (single_line.equals("")) {
+                    continue;
+                }
                 //split the line into words and save to an ArrayList
                 String[] lineWords = single_line.split(" ");
                 for (String word : lineWords) {
@@ -65,7 +69,6 @@ public class Mapper implements Runnable {
         try {
             FileWriter fw = new FileWriter(output_file_path);
             BufferedWriter bw = new BufferedWriter(fw);
-
             for (String word : words) {
                 bw.write(word);
                 bw.newLine();
