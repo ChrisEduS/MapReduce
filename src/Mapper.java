@@ -7,18 +7,31 @@ public class Mapper implements Runnable {
     TxtManager txtManager = new TxtManager();
     String chunk_name;
     String chunk_path;
+    boolean it_fails = false;
+    boolean is_working = true;
     String mapper_output_path = txtManager.getMapper_output_path();
 
-    public Mapper(String chunk_name){
+    public Mapper(String chunk_name, boolean it_fails){
         this.chunk_name = chunk_name;
+        this.it_fails = it_fails;
         this.chunk_path = txtManager.getChunks_path() + chunk_name;
     }
 
 
     @Override
     public void run() {
-        ArrayList<String> words_mapped = mapping(chunk_path);
-        this.save_mapped_words_to_file(words_mapped, this.mapper_output_path+"mapped_"+chunk_name);
+        while (true){
+            if (it_fails || !this.is_working){
+                break;
+            }
+            else {
+                ArrayList<String> words_mapped = mapping(chunk_path);
+                this.save_mapped_words_to_file(words_mapped, this.mapper_output_path+"mapped_"+chunk_name);
+                this.is_working = false;
+            }
+            
+        }
+        
 
     }
 
@@ -63,5 +76,18 @@ public class Mapper implements Runnable {
             System.out.println(e.getMessage());
         }
     }
+    
+    public void restart_mapper(){
+        this.it_fails = false;
+    }
 
+    public boolean get_status(){
+        return this.is_working;
+    }
+
+    public void assign_chunk(String chunk_name){
+        this.chunk_name = chunk_name;
+        this.chunk_path = txtManager.getChunks_path() + chunk_name;
+        this.is_working = true;
+    }
 }
