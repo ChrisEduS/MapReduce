@@ -11,7 +11,7 @@ public class TxtManager {
     private String chunks_path = "resources/Chunks/";
     private String chunks_name_path = "resources/Chunks/chunks_name.txt";
     private String mapper_output_path = "resources/Mappers_Output/";
-    private String reducer_output_path = "resources/Reducers_Output/";
+    private String combiner_output_path = "resources/Combiners_Output/";
     private String final_output_path = "resources/Final_Output/";
 
     public TxtManager() {
@@ -124,8 +124,8 @@ public class TxtManager {
     public String getMapper_output_path() {
         return mapper_output_path;
     }
-    public String getReducer_output_path() {
-        return reducer_output_path;
+    public String getCombiner_output_path() {
+        return combiner_output_path;
     }
     public String getFinal_output_path() {
         return final_output_path;

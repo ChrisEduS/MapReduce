@@ -1,4 +1,3 @@
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -11,9 +10,9 @@ public class Controller implements Runnable {
 
     public ArrayList<Thread> mappers_threads = new ArrayList<Thread>();
     public Boolean map_finsh = false;
-    public ArrayList<Reducer> reducers = new ArrayList<Reducer>();
-    public ArrayList<Thread> reducers_threads = new ArrayList<Thread>();
-    public Boolean reduce_finish = false;
+    public ArrayList<Combiner> combiners = new ArrayList<Combiner>();
+    public ArrayList<Thread> combiners_threads = new ArrayList<Thread>();
+    public Boolean combine_finish = false;
 
     public Controller() {
         this.available_chunks = txtManager.get_chunks_name();
@@ -31,23 +30,23 @@ public class Controller implements Runnable {
                 }
             }
 
-            // Check if all mappers have finished and if it's time to start the reducers
+            // Check if all mappers have finished and if it's time to start the combiners
             if (map_finsh && all_mappers_finished() && available_mapped_chunks.isEmpty()) {
                 System.out.println("Map finished");
-                init_reducers();
+                init_combiners();
 
                 while (true){
                     if (!available_mapped_chunks.isEmpty()) {
-                        verify_state_reducers();
+                        verify_state_combiners();
                     }
-                    if (all_reducers_finished()) {
+                    if (all_combiners_finished()) {
                         System.out.println("Reduce finished");
-                        reduce_finish = true;
-                        break; // Exit the loop once all reducers have finished
+                        combine_finish = true;
+                        break; // Exit the loop once all combiners have finished
                     }
                 }
                 break;
-                // Exit the loop once the reducers have started
+                // Exit the loop once the combiners have started
             }
 
         }
@@ -76,12 +75,12 @@ public class Controller implements Runnable {
         }
     }
 
-    void verify_state_reducers(){
-        for (Reducer reducer : this.reducers) {
-            if (!reducer.is_working) {
-                // if the reducer is not working, we need to assign another chunk
-                reducer.is_working = true;
-                reducer.assign_chunk(this.available_mapped_chunks.remove());
+    void verify_state_combiners(){
+        for (Combiner combiner : this.combiners) {
+            if (!combiner.is_working) {
+                // if the combiner is not working, we need to assign another chunk
+                combiner.is_working = true;
+                combiner.assign_chunk(this.available_mapped_chunks.remove());
             }
         }
     }
@@ -95,22 +94,22 @@ public class Controller implements Runnable {
         return true;
     }
 
-    void init_reducers() {
+    void init_combiners() {
         available_mapped_chunks = txtManager.get_mapper_name();
         
         for (int i = 0; i < 4; i++) {
-            Reducer reducer = new Reducer(i, this.available_mapped_chunks.remove());
-            this.reducers.add(reducer);
-            Thread reducerThread = new Thread(reducer);
-            this.reducers_threads.add(reducerThread);
-            System.out.println("Reducer " + i + " started");
-            reducerThread.start();
+            Combiner combiner = new Combiner(i, this.available_mapped_chunks.remove());
+            this.combiners.add(combiner);
+            Thread combinerThread = new Thread(combiner);
+            this.combiners_threads.add(combinerThread);
+            System.out.println("Combiner " + i + " started");
+            combinerThread.start();
         }
     }
 
-    boolean all_reducers_finished() {
-        for (Thread reducerThread : this.reducers_threads) {
-            if (reducerThread.isAlive()) {
+    boolean all_combiners_finished() {
+        for (Thread combinerThread : this.combiners_threads) {
+            if (combinerThread.isAlive()) {
                 return false;
             }
         }
