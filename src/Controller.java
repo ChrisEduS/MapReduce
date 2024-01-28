@@ -11,6 +11,9 @@ public class Controller implements Runnable {
 
     public ArrayList<Thread> mappers_threads = new ArrayList<Thread>();
     public Boolean map_finsh = false;
+    public ArrayList<Reducer> reducers = new ArrayList<Reducer>();
+    public ArrayList<Thread> reducers_threads = new ArrayList<Thread>();
+    public Boolean reduce_finish = false;
 
     public Controller() {
         this.available_chunks = txtManager.get_chunks_name();
@@ -32,8 +35,14 @@ public class Controller implements Runnable {
             if (map_finsh && all_mappers_finished() && available_mapped_chunks.isEmpty()) {
                 System.out.println("Map finished");
                 init_reducers();
-                break; // Exit the loop once the reducers have started
+                if (all_reducers_finished()) {
+                    System.out.println("Reduce finished");
+                    reduce_finish = true;
+                    break; // Exit the loop once all reducers have finished
+                }
+                // Exit the loop once the reducers have started
             }
+
         }
 
     }
@@ -72,6 +81,23 @@ public class Controller implements Runnable {
     void init_reducers() {
         available_mapped_chunks = txtManager.get_mapper_name();
         System.out.println(available_mapped_chunks);
+        for (int i = 0; i < 2; i++) {
+            Reducer reducer = new Reducer(i, this.available_mapped_chunks.remove());
+            this.reducers.add(reducer);
+            Thread reducerThread = new Thread(reducer);
+            this.reducers_threads.add(reducerThread);
+            reducerThread.start();
+            System.out.println("Reducer " + i + " started");
+        }
+    }
+
+    boolean all_reducers_finished() {
+        for (Thread reducerThread : this.reducers_threads) {
+            if (reducerThread.isAlive()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
