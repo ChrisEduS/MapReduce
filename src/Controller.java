@@ -12,7 +12,8 @@ public class Controller implements Runnable {
     public ArrayList<Thread> mappers_threads = new ArrayList<Thread>();
     public Boolean map_finsh = false;
     public ArrayList<Reducer> reducers = new ArrayList<Reducer>();
-    public ArrayList<Thread>  reducers_threads = new ArrayList<Thread>();
+    public ArrayList<Thread> reducers_threads = new ArrayList<Thread>();
+    public Boolean reduce_finish = false;
 
     public Controller() {
         this.available_chunks = txtManager.get_chunks_name();
@@ -21,23 +22,30 @@ public class Controller implements Runnable {
     @Override
     public void run() {
         init_mappers();
-        init_reducers();
 
         while (true) {
             if (!available_chunks.isEmpty()) {
                 verify_state_mappers();
-            }
-            if (!Mapper.reducer_chunks.isEmpty()) {
-                for(Mapper mapper : this.mappers){
-                    if(!mapper.is_working){
-                        deque_reducer_name();
-                    }
+                if (available_chunks.size() == 0) {
+                    map_finsh = true;
                 }
-
             }
-        }
-    }
 
+            // Check if all mappers have finished and if it's time to start the reducers
+            if (map_finsh && all_mappers_finished() && available_mapped_chunks.isEmpty()) {
+                System.out.println("Map finished");
+                init_reducers();
+                if (all_reducers_finished()) {
+                    System.out.println("Reduce finished");
+                    reduce_finish = true;
+                    break; // Exit the loop once all reducers have finished
+                }
+                // Exit the loop once the reducers have started
+            }
+
+        }
+
+    }
 
     void init_mappers() {
         // init four mappers
@@ -71,8 +79,10 @@ public class Controller implements Runnable {
     }
 
     void init_reducers() {
+        available_mapped_chunks = txtManager.get_mapper_name();
+        System.out.println(available_mapped_chunks);
         for (int i = 0; i < 2; i++) {
-            Reducer reducer = new Reducer(i);
+            Reducer reducer = new Reducer(i, this.available_mapped_chunks.remove());
             this.reducers.add(reducer);
             Thread reducerThread = new Thread(reducer);
             this.reducers_threads.add(reducerThread);
@@ -88,12 +98,6 @@ public class Controller implements Runnable {
             }
         }
         return true;
-    }
-
-    String deque_reducer_name(){
-        String chunk_name = Mapper.reducer_chunks.remove();
-        System.out.println(chunk_name + "Enviado a reducer");
-        return chunk_name;
     }
 
 }
