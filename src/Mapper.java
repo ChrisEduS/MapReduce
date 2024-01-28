@@ -69,14 +69,16 @@ public class Mapper implements Runnable {
 
     public void save_mapped_words_to_file(ArrayList<String> words, String output_file_path) {
         try {
-            FileWriter fw = new FileWriter(output_file_path);
-            BufferedWriter bw = new BufferedWriter(fw);
+            BufferedWriter bw_words = new BufferedWriter(new FileWriter(output_file_path));
+            BufferedWriter bw_mapped_chunk_names = new BufferedWriter(new FileWriter(txtManager.getChunks_name_path()+"mapped_chunk_names.txt"));
             for (String word : words) {
-                bw.write(word);
-                bw.newLine();
+                bw_words.write(word);
+                bw_words.newLine();
             }
-            bw.close();
-            fw.close();
+            bw_mapped_chunk_names.write(chunk_name);
+            bw_mapped_chunk_names.newLine();
+            bw_mapped_chunk_names.close();
+            bw_words.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
