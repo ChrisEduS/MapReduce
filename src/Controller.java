@@ -23,97 +23,109 @@ public class Controller implements Runnable {
 
     public int number_of_mappers;
     public int number_of_combiners;
-    public int mappers_fail;
-    public int combiners_fail;
+
+    public boolean fail_mappers;
+    public boolean fail_combiners;
+
+    public int id_mapper_fail;
+    public int id_combiner_fail;
 
 
-    public Controller(int number_of_mappers, int number_of_combiners, int mappers_fail, int combiners_fail) {
+    public Controller(int number_of_mappers, int number_of_combiners, boolean fail_mappers, boolean fail_combiners, int id_mapper_fail, int id_combiner_fail) {
         this.available_chunks = txtManager.get_chunks_name();
         this.number_of_mappers = number_of_mappers;
         this.number_of_combiners = number_of_combiners;
-        this.mappers_fail = mappers_fail;
-        this.combiners_fail = combiners_fail;
+        this.id_mapper_fail = id_mapper_fail;
+        this.id_combiner_fail = id_combiner_fail;
+        this.fail_mappers = fail_mappers;
+        this.fail_combiners = fail_combiners;
     }
 
     @Override
     public void run() {
         try {
-            init_mappers(number_of_mappers, mappers_fail);
+            init_mappers(number_of_mappers, id_mapper_fail);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    sleep(4000); // Wait 4 seconds
-                    Mapper restart_mapper = mappers.get(mappers_fail);
-                    Thread restart_mapper_thread = new Thread(restart_mapper);
-                    mappers_threads.set(mappers_fail, restart_mapper_thread);
-                    restart_mapper_thread.start();
-                    System.out.println("Mapper " + mappers_fail + " Restarted Successfully!!!!");
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        if (this.fail_mappers){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        sleep(4000); 
+                        Mapper restart_mapper = mappers.get(id_mapper_fail);
+                        Thread restart_mapper_thread = new Thread(restart_mapper);
+                        mappers_threads.set(id_mapper_fail, restart_mapper_thread);
+                        restart_mapper_thread.start();
+                        System.out.println("Mapper " + id_mapper_fail + " Restarted Successfully!!!!");
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
-        }).start();
+            }).start();
+        }
+        
         while (true) {
             if (!available_chunks.isEmpty()) {
                 verify_state_mappers();
-                if (available_chunks.size() == 0) {
-                    map_finsh = true;
                 }
-            }
-
-            // Check if all mappers have finished and if it's time to start the combiners
-            if (map_finsh && all_mappers_finished() && available_mapped_chunks.isEmpty()) {
+            if (all_mappers_finished()){
                 System.out.println("Map finished");
-                init_combiners(number_of_combiners, combiners_fail);
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            sleep(4000); // Wait 5 seconds
-                            Combiner restart_combiner = combiners.get(combiners_fail);
-                            Thread restart_combiner_thread = new Thread(restart_combiner);
-                            combiners_threads.set(combiners_fail, restart_combiner_thread);
-                            restart_combiner_thread.start();
-                            System.out.println("Combiner " + combiners_fail + " Restarted Successfully!!!!");
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }).run();
-
-                while (true){
-                    if (!available_mapped_chunks.isEmpty()) {
-                        verify_state_combiners();
-                    }
-                    if (all_combiners_finished()) {
-                        System.out.println("Reduce finished");
-                        combine_finish = true;
-                        break; // Exit the loop once all combiners have finished
-                    }
-                }
-
-                ArrayList<String> combiner_name = txtManager.get_combiner_name();
-                //to each name add the path
-                String path  = "resources/Combiners_Output/";
-                for (int i = 0; i < combiner_name.size(); i++) {
-                    combiner_name.set(i, path + combiner_name.get(i));
-                }
-                Reducer_Finisher reducerFinisher = new Reducer_Finisher(combiner_name, "resources/Final_Output/word_count.txt");
-                Thread reducerFinisherThread = new Thread(reducerFinisher);
-                reducerFinisherThread.start();
                 break;
             }
         }
 
-    }
+        try {
+            init_combiners(number_of_combiners, id_combiner_fail);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        
+        if (this.fail_combiners){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        sleep(8000); 
+                        Combiner restart_combiner = combiners.get(id_combiner_fail);
+                        Thread restart_combiner_thread = new Thread(restart_combiner);
+                        combiners_threads.set(id_combiner_fail, restart_combiner_thread);
+                        restart_combiner_thread.start();
+                        System.out.println("Combiner " + id_combiner_fail + " Restarted Successfully!!!!");
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }).start();
+        }
+        
+        while (true){
+            if (!available_mapped_chunks.isEmpty()) {
+                verify_state_combiners();
+            }
+            if (all_combiners_finished()) {
+                System.out.println("Reduce finished");
+                combine_finish = true;
+                break; // Exit the loop once all combiners have finished
+            }
+        }
 
-    void init_mappers(int number_of_mappers, int mappers_fail) throws InterruptedException {
+        ArrayList<String> combiner_name = txtManager.get_combiner_name();
+        //to each name add the path
+        String path  = "resources/Combiners_Output/";
+        for (int i = 0; i < combiner_name.size(); i++) {
+            combiner_name.set(i, path + combiner_name.get(i));
+        }
+        Reducer_Finisher reducerFinisher = new Reducer_Finisher(combiner_name, "resources/Final_Output/word_count.txt");
+        Thread reducerFinisherThread = new Thread(reducerFinisher);
+        reducerFinisherThread.start();
+            
+        }
+
+
+    void init_mappers(int number_of_mappers, int id_mapper_fail) throws InterruptedException {
         // init four mappers
         for (int i = 0; i < number_of_mappers; i++) {
             Mapper mapper = new Mapper(i, this.available_chunks.remove(), false);
@@ -123,9 +135,9 @@ public class Controller implements Runnable {
             System.out.println("Mapper " + i + " started");
             mapperThread.start();
         }
-        if (mappers_fail  >= 0 && mappers_threads.get(mappers_fail).isAlive()) {
-            mappers_threads.get(mappers_fail).stop();
-            System.out.println("Mapper " + mappers_fail + " FAILED, waiting for restart...");
+        if (this.fail_mappers && mappers_threads.get(id_mapper_fail).isAlive()) {
+            mappers_threads.get(id_mapper_fail).stop();
+            System.out.println("Mapper " + id_mapper_fail + " FAILED, waiting for restart...");
         }
     }
 
@@ -158,7 +170,7 @@ public class Controller implements Runnable {
         return true;
     }
 
-    void init_combiners(int number_of_combiners, int combiners_fail) {
+    void init_combiners(int number_of_combiners, int id_combiner_fail) throws InterruptedException {
         available_mapped_chunks = txtManager.get_mapper_name();
         for (int i = 0; i < number_of_combiners; i++) {
             Combiner combiner = new Combiner(i, this.available_mapped_chunks.remove());
@@ -168,9 +180,9 @@ public class Controller implements Runnable {
             System.out.println("Combiner " + i + " started");
             combinerThread.start();
         }
-        if (combiners_fail  >= 0 && combiners_threads.get(combiners_fail).isAlive()) {
-            combiners_threads.get(combiners_fail).stop();
-            System.out.println("Combiner " + combiners_fail + " FAILED, waiting for restart...");
+        if (this.fail_combiners && combiners_threads.get(id_combiner_fail).isAlive()) {
+            combiners_threads.get(id_combiner_fail).stop();
+            System.out.println("Combiner " + id_combiner_fail + " FAILED, waiting for restart...");
         }
     }
 
